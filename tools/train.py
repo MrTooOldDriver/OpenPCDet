@@ -67,12 +67,6 @@ def main():
     if args.launcher == 'none':
         dist_train = False
         total_gpus = 1
-    elif args.launcher == 'single':
-        dist_train = True
-        total_gpus = torch.cuda.device_count()
-        total_gpus, cfg.LOCAL_RANK = getattr(common_utils, 'init_dist_%s' % args.launcher)(
-            args.tcp_port, args.local_rank, backend='nccl'
-        )
     else:
         total_gpus, cfg.LOCAL_RANK = getattr(common_utils, 'init_dist_%s' % args.launcher)(
             args.tcp_port, args.local_rank, backend='nccl'

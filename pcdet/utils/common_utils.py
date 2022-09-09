@@ -159,7 +159,7 @@ def init_dist_slurm(tcp_port, local_rank, backend='nccl'):
     addr = subprocess.getoutput('scontrol show hostname {} | head -n1'.format(node_list))
     os.environ['MASTER_PORT'] = str(tcp_port)
     os.environ['MASTER_ADDR'] = addr
-    os.environ['WORLD_SIZE'] = str(ntasks)
+    os.environ['WORLD_SIZE'] = str(torch.cuda.device_count())
     os.environ['RANK'] = str(proc_id)
     dist.init_process_group(backend=backend)
 
