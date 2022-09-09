@@ -133,7 +133,6 @@ ln -s ${dest_path}/radar ${repo_home}/data/vod_radar
 cd ./tools
 python train.py --cfg_file ./cfgs/kitti_models/pv_rcnn_vod.yaml --epoch 80 --workers 8 --extra_tag radar --batch_size 4
 
-
 # ======================================
 # Move output data from scratch to DFS
 # ======================================

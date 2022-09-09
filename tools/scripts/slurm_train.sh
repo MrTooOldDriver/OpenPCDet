@@ -7,7 +7,7 @@ JOB_NAME=$2
 GPUS=$3
 PY_ARGS=${@:4}
 
-GPUS_PER_NODE=${GPUS_PER_NODE:-8}
+GPUS_PER_NODE=${GPUS_PER_NODE:-2}
 CPUS_PER_TASK=${CPUS_PER_TASK:-5}
 SRUN_ARGS=${SRUN_ARGS:-""}
 
@@ -29,4 +29,4 @@ srun -p ${PARTITION} \
     --cpus-per-task=${CPUS_PER_TASK} \
     --kill-on-bad-exit=1 \
     ${SRUN_ARGS} \
-    python -u train.py --launcher slurm --tcp_port $PORT ${PY_ARGS}
+    sh copy_dataset.sh $PORT ${PY_ARGS}
