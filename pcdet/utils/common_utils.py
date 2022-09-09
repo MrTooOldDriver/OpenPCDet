@@ -167,20 +167,6 @@ def init_dist_slurm(tcp_port, local_rank, backend='nccl'):
     rank = dist.get_rank()
     return total_gpus, rank
 
-def init_dist_single(tcp_port, local_rank, backend='nccl'):
-    node_list = os.environ['SLURM_NODELIST']
-    proc_id = int(os.environ['SLURM_PROCID'])
-    addr = subprocess.getoutput('scontrol show hostname {} | head -n1'.format(node_list))
-    os.environ['MASTER_PORT'] = str(tcp_port)
-    os.environ['MASTER_ADDR'] = addr
-    os.environ['WORLD_SIZE'] = str(torch.cuda.device_count())
-    os.environ['RANK'] = str(proc_id)
-    dist.init_process_group(backend=backend)
-    total_gpus = dist.get_world_size()
-    rank = dist.get_rank()
-    print(total_gpus, rank)
-    return total_gpus, rank
-
 def init_dist_pytorch(tcp_port, local_rank, backend='nccl'):
     if mp.get_start_method(allow_none=True) is None:
         mp.set_start_method('spawn')

@@ -1,3 +1,4 @@
+from re import T
 import _init_path
 import argparse
 import datetime
@@ -67,6 +68,9 @@ def main():
     if args.launcher == 'none':
         dist_train = False
         total_gpus = 1
+    elif args.launcher == 'single':
+        total_gpus = torch.cuda.device_count()
+        dist_train = True
     else:
         total_gpus, cfg.LOCAL_RANK = getattr(common_utils, 'init_dist_%s' % args.launcher)(
             args.tcp_port, args.local_rank, backend='nccl'
@@ -109,17 +113,30 @@ def main():
     tb_log = SummaryWriter(log_dir=str(output_dir / 'tensorboard')) if cfg.LOCAL_RANK == 0 else None
 
     # -----------------------create dataloader & network & optimizer---------------------------
-    train_set, train_loader, train_sampler = build_dataloader(
+    if args.launcher == 'single':
+        train_set, train_loader, train_sampler = build_dataloader(
         dataset_cfg=cfg.DATA_CONFIG,
         class_names=cfg.CLASS_NAMES,
         batch_size=args.batch_size,
-        dist=dist_train, workers=args.workers,
+        dist=False, workers=args.workers,
         logger=logger,
         training=True,
         merge_all_iters_to_one_epoch=args.merge_all_iters_to_one_epoch,
         total_epochs=args.epochs,
         seed=666 if args.fix_random_seed else None
     )
+    else:
+        train_set, train_loader, train_sampler = build_dataloader(
+            dataset_cfg=cfg.DATA_CONFIG,
+            class_names=cfg.CLASS_NAMES,
+            batch_size=args.batch_size,
+            dist=dist_train, workers=args.workers,
+            logger=logger,
+            training=True,
+            merge_all_iters_to_one_epoch=args.merge_all_iters_to_one_epoch,
+            total_epochs=args.epochs,
+            seed=666 if args.fix_random_seed else None
+        )
 
     model = build_network(model_cfg=cfg.MODEL, num_class=len(cfg.CLASS_NAMES), dataset=train_set)
     if args.sync_bn:
@@ -154,7 +171,7 @@ def main():
 
     model.train()  # before wrap to DistributedDataParallel to support fixed some parameters
     if dist_train and args.launcher == 'single':
-        model = nn.parallel.DistributedDataParallel(model)
+        model = nn.parallel.DataParallel(model)
     elif dist_train:
         model = nn.parallel.DistributedDataParallel(model, device_ids=[cfg.LOCAL_RANK % torch.cuda.device_count()])
     logger.info(model)
