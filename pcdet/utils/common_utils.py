@@ -168,13 +168,18 @@ def init_dist_slurm(tcp_port, local_rank, backend='nccl'):
     return total_gpus, rank
 
 def init_dist_single(tcp_port, local_rank, backend='nccl'):
+    node_list = os.environ['SLURM_NODELIST']
     proc_id = int(os.environ['SLURM_PROCID'])
     ntasks = int(os.environ['SLURM_NTASKS'])
+    addr = subprocess.getoutput('scontrol show hostname {} | head -n1'.format(node_list))
+    os.environ['MASTER_PORT'] = str(tcp_port)
+    os.environ['MASTER_ADDR'] = addr
     os.environ['WORLD_SIZE'] = str(ntasks)
     os.environ['RANK'] = str(proc_id)
     dist.init_process_group(backend=backend)
     total_gpus = dist.get_world_size()
     rank = dist.get_rank()
+    print(total_gpus, rank)
     return total_gpus, rank
 
 def init_dist_pytorch(tcp_port, local_rank, backend='nccl'):
