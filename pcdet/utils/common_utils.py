@@ -168,6 +168,7 @@ def init_dist_slurm(tcp_port, local_rank, backend='nccl'):
     return total_gpus, rank
 
 def init_dist_single(tcp_port, local_rank, backend='nccl'):
+    os.environ['RANK'] = '0'
     dist.init_process_group(backend=backend)
     total_gpus = dist.get_world_size()
     rank = dist.get_rank()
