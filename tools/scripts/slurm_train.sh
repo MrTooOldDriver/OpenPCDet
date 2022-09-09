@@ -7,7 +7,7 @@ JOB_NAME=$2
 GPUS=$3
 PY_ARGS=${@:4}
 
-GPUS_PER_NODE=${GPUS_PER_NODE:-2}
+GPUS_PER_NODE=${GPUS_PER_NODE:-4}
 CPUS_PER_TASK=${CPUS_PER_TASK:-5}
 SRUN_ARGS=${SRUN_ARGS:-""}
 
@@ -28,5 +28,7 @@ srun -p ${PARTITION} \
     --ntasks-per-node=${GPUS_PER_NODE} \
     --cpus-per-task=${CPUS_PER_TASK} \
     --kill-on-bad-exit=1 \
+    --output=/home/%u/slurm_logs/slurm-%A_%a.out \
+    --error=/home/%u/slurm_logs/slurm-%A_%a.out \
     ${SRUN_ARGS} \
-    sh copy_dataset.sh $PORT ${PY_ARGS}
+    sh scripts/copy_dataset.sh $PORT ${PY_ARGS}
