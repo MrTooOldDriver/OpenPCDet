@@ -1,7 +1,3 @@
-#!/usr/bin/env bash
-
-# set -x
-
 PARTITION=$1
 JOB_NAME=$2
 GPUS=$3
