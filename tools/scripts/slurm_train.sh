@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+# set -x
 
 PARTITION=$1
 JOB_NAME=$2
