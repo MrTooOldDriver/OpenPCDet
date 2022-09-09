@@ -167,6 +167,11 @@ def init_dist_slurm(tcp_port, local_rank, backend='nccl'):
     rank = dist.get_rank()
     return total_gpus, rank
 
+def init_dist_single(tcp_port, local_rank, backend='nccl'):
+    dist.init_process_group(backend=backend)
+    total_gpus = dist.get_world_size()
+    rank = dist.get_rank()
+    return total_gpus, rank
 
 def init_dist_pytorch(tcp_port, local_rank, backend='nccl'):
     if mp.get_start_method(allow_none=True) is None:
