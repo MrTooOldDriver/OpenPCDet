@@ -67,6 +67,9 @@ def main():
     if args.launcher == 'none':
         dist_train = False
         total_gpus = 1
+    elif args.launcher == 'single':
+        dist_train = True
+        total_gpus = torch.cuda.device_count()
     else:
         total_gpus, cfg.LOCAL_RANK = getattr(common_utils, 'init_dist_%s' % args.launcher)(
             args.tcp_port, args.local_rank, backend='nccl'
@@ -98,6 +101,7 @@ def main():
     logger.info('CUDA_VISIBLE_DEVICES=%s' % gpu_list)
 
     if dist_train:
+        logger.info('total_gpus: %d' % (total_gpus))
         logger.info('total_batch_size: %d' % (total_gpus * args.batch_size))
     for key, val in vars(args).items():
         logger.info('{:16} {}'.format(key, val))
@@ -152,7 +156,9 @@ def main():
                     ckpt_list = ckpt_list[:-1]
 
     model.train()  # before wrap to DistributedDataParallel to support fixed some parameters
-    if dist_train:
+    if dist_train and args.launcher == 'single':
+        model = nn.parallel.DistributedDataParallel(model)
+    elif dist_train:
         model = nn.parallel.DistributedDataParallel(model, device_ids=[cfg.LOCAL_RANK % torch.cuda.device_count()])
     logger.info(model)
 
