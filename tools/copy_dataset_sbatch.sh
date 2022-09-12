@@ -21,5 +21,7 @@ src_path=/home/${USER}/dataset/view_of_delft_PUBLIC
 dest_path=${SCRATCH_HOME}/view_of_delft_PUBLIC
 mkdir -p ${dest_path}
 rsync --archive --update --compress --progress ${src_path}/ ${dest_path}
-
+cd $repo_home
+cd ./tools
+echo "Start train"
 python -u train.py --launcher slurm --tcp_port $PORT ${PY_ARGS}
