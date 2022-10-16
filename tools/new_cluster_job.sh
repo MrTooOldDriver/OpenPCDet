@@ -3,12 +3,16 @@
 set -x
 
 PARTITION=PGR-Standard
-JOB_NAME=pvrcnn
-GPUS=4
-CONFIG_FILE=./cfgs/kitti_models/pv_rcnn_vod.yaml
+JOB_NAME=openpcdet
+# GPUS=4
+GPUS=1
+# CONFIG_FILE=./cfgs/kitti_models/pv_rcnn_vod_lidar.yaml
+# CONFIG_FILE=./cfgs/kitti_models/pointrcnn_vod.yaml
+CONFIG_FILE=./cfgs/kitti_models/pointrcnn_vod_lidar.yaml
 
-GPUS_PER_NODE=${GPUS_PER_NODE:-4}
-CPUS_PER_TASK=${CPUS_PER_TASK:-5}
+# GPUS_PER_NODE=${GPUS_PER_NODE:-4}
+GPUS_PER_NODE=${GPUS_PER_NODE:-1}
+CPUS_PER_TASK=${CPUS_PER_TASK:-4}
 SRUN_ARGS=${SRUN_ARGS:-""}
 
 while true
@@ -22,8 +26,8 @@ done
 echo $PORT
 
 srun -p ${PARTITION} \
-    --mail-type=ALL; \
-    --mail-user=s1904845@ed.ac.uk
+    --mail-type=ALL \
+    --mail-user=s1904845@ed.ac.uk \
     --time 08:00:00 \
     --job-name=${JOB_NAME} \
     --gres=gpu:${GPUS_PER_NODE} \

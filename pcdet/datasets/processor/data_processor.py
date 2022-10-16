@@ -143,6 +143,34 @@ class DataProcessor(object):
         data_dict['voxel_num_points'] = num_points
         return data_dict
 
+    def sample_radar_points(self, data_dict=None, config=None):
+        # make sure it's upsampling the radar points
+        if data_dict is None:
+            return partial(self.sample_radar_points, config=config)
+        num_points = config.NUM_POINTS[self.mode]
+        if num_points == -1:
+            return data_dict
+        
+        
+        points = data_dict['points']
+        if len(points) < config.MIN_NUM_PTS:
+            return data_dict
+        if num_points < len(points):
+            # print('sth is wrong here')
+            raise RuntimeError('radar points sampling only applies for upsampling')
+        else:
+            choice = np.arange(0, len(points), dtype=np.int32) # keep all the origianal poitns
+            # print(len(points))
+            extra_num = num_points - len(points)
+            try:
+                extra_choice = np.random.choice(choice, extra_num, replace=True)
+            except:
+                print(len(points))
+            choice = np.concatenate((choice, extra_choice), axis=0)
+        np.random.shuffle(choice)
+        data_dict['points'] = points[choice]
+        return data_dict
+
     def sample_points(self, data_dict=None, config=None):
         if data_dict is None:
             return partial(self.sample_points, config=config)
@@ -157,6 +185,7 @@ class DataProcessor(object):
             pts_near_flag = pts_depth < 40.0
             far_idxs_choice = np.where(pts_near_flag == 0)[0]
             near_idxs = np.where(pts_near_flag == 1)[0]
+            near_idxs_choice = np.random.choice(near_idxs, num_points - len(far_idxs_choice), replace=False)
             choice = []
             if num_points > len(far_idxs_choice):
                 near_idxs_choice = np.random.choice(near_idxs, num_points - len(far_idxs_choice), replace=False)
@@ -169,7 +198,9 @@ class DataProcessor(object):
         else:
             choice = np.arange(0, len(points), dtype=np.int32)
             if num_points > len(points):
-                extra_choice = np.random.choice(choice, num_points - len(points), replace=False)
+                # error occurs when num_points - len(points) > choice, using replace=True instead
+                # extra_choice = np.random.choice(choice, num_points - len(points), replace=False)
+                extra_choice = np.random.choice(choice, num_points - len(points), replace=True)
                 choice = np.concatenate((choice, extra_choice), axis=0)
             np.random.shuffle(choice)
         data_dict['points'] = points[choice]

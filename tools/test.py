@@ -188,6 +188,13 @@ def main():
 
     ckpt_dir = args.ckpt_dir if args.ckpt_dir is not None else output_dir / 'ckpt'
 
+    # change dataset_cfg temporary to test
+    bm_split = cfg.DATA_CONFIG.DATA_SPLIT['bench_mark']
+    bm_info = cfg.DATA_CONFIG.INFO_PATH['bench_mark']
+
+    cfg.DATA_CONFIG.DATA_SPLIT['test'] = bm_split
+    cfg.DATA_CONFIG.INFO_PATH['test'] = bm_info
+
     test_set, test_loader, sampler = build_dataloader(
         dataset_cfg=cfg.DATA_CONFIG,
         class_names=cfg.CLASS_NAMES,
