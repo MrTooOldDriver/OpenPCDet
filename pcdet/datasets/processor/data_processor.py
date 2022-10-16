@@ -156,7 +156,9 @@ class DataProcessor(object):
         if len(points) < config.MIN_NUM_PTS:
             return data_dict
         if num_points < len(points):
-            # print('sth is wrong here')
+            print('sth is wrong here')
+            print('num_points', num_points)
+            print('len(points)', len(points))
             raise RuntimeError('radar points sampling only applies for upsampling')
         else:
             choice = np.arange(0, len(points), dtype=np.int32) # keep all the origianal poitns
