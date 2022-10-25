@@ -417,6 +417,19 @@ class VodDataset(DatasetTemplate):
             vod_eval.get_official_eval_result(eval_gt_annos, eval_det_annos, class_names, custom_method=3,
                                               is_radar=self.is_radar))
         final_evaluation['vod_eval'] = vod_evaluation_result
+        vod_eval_str = ("Results: \n"
+        f"Entire annotated area: \n"
+        f"Car: {vod_evaluation_result['entire_area']['Car_3d_all']} \n"
+        f"Pedestrian: {vod_evaluation_result['entire_area']['Pedestrian_3d_all']} \n"
+        f"Cyclist: {vod_evaluation_result['entire_area']['Cyclist_3d_all']} \n"
+        f"mAP: {(vod_evaluation_result['entire_area']['Car_3d_all'] + vod_evaluation_result['entire_area']['Pedestrian_3d_all'] + vod_evaluation_result['entire_area']['Cyclist_3d_all']) / 3} \n"
+        f"Driving corridor area: \n"
+        f"Car: {vod_evaluation_result['roi']['Car_3d_all']} \n"
+        f"Pedestrian: {vod_evaluation_result['roi']['Pedestrian_3d_all']} \n"
+        f"Cyclist: {vod_evaluation_result['roi']['Cyclist_3d_all']} \n"
+        f"mAP: {(vod_evaluation_result['roi']['Car_3d_all'] + vod_evaluation_result['roi']['Pedestrian_3d_all'] + vod_evaluation_result['roi']['Cyclist_3d_all']) / 3} \n"
+        )
+
         self.logger.info('*************   using pcdet official evaluation script   *************')
         kitti_evaluation_result = {}
         result_str, ap_dict = kitti_eval.get_official_eval_result(eval_gt_annos, eval_det_annos, class_names,
@@ -424,7 +437,7 @@ class VodDataset(DatasetTemplate):
         kitti_evaluation_result.update(ap_dict)
         self.logger.info(result_str)
         final_evaluation['kitti_eval'] = kitti_evaluation_result
-        return final_evaluation
+        return vod_eval_str, final_evaluation
 
     def __len__(self):
         if self._merge_all_iters_to_one_epoch:
